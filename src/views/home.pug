@@ -1,0 +1,11 @@
+extends base
+include mixins/video
+
+block content 
+    h2 Trending Videos Here!
+    ul 
+        each potato in videos 
+            +video(potato)
+        else 
+            li no video found
+    
