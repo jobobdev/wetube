@@ -1,3 +1,4 @@
+
 import express from "express";
 import morgan from "morgan";
 
@@ -5,10 +6,10 @@ import globalRouter from "./routers/globalRouter";
 import userRouter from "./routers/userRouter";
 import videoRouter from "./routers/videoRouter";
 
-const PORT = 4000;
+
 const app = express();
 
-
+// logger는 request가 finished 되면 발동한다.
 const logger = morgan("dev");
 
 
@@ -22,9 +23,6 @@ app.use('/', globalRouter);
 app.use("/videos", videoRouter);
 app.use('/users', userRouter);
 
+export default app;
 
 
-
-const handleListen = () => console.log(`✅ Server is listening on http://localhost:${PORT}`);
-
-app.listen(PORT, handleListen);
