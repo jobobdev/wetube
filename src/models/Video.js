@@ -5,13 +5,14 @@ import mongoose from "mongoose"
 // define the shape of the model == schema
 // [what schema should contain : type of data]
 const videoSchema = new mongoose.Schema({
-    title: String, // same as doing title: {type: String}
-    description: String,
-    createdAt: Date,
-    hastags: [{ type: String}],
+    title: {type: String, required: true, trim: true, maxLength: 80 }, 
+    description: {type: String, required: true, trim: true, minLength: 20},
+    // Date.now에서 now()를 하지 않는 이유는, 여기서 바로 함수를 콜하지 않기 위함이다. 그럼 알아서 mongodb와 mongoose가 알아서 시행해줄 것이다.
+    createdAt: {type: Date, required: true, default: Date.now},
+    hashtags: [{ type: String, trim: true}],
     meta: {
-        views: Number,
-        rating: Number,
+        views: {type: Number, default: 0, required: true},
+        rating: {type: Number, default: 0, required: true},
     },
 });
 
