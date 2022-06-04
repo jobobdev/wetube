@@ -16,6 +16,11 @@ const videoSchema = new mongoose.Schema({
     },
 });
 
+// create a middleware before you create a Model
+videoSchema.static("formatHashtages", function(hashtags) {
+    return hashtags.split(",").map((word) => (word.startsWith("#") ? word : `#${word}`))
+})
+
 // creating a model
 // mongoose.model([name of the model], [schema])
 const Video = mongoose.model("Video", videoSchema)

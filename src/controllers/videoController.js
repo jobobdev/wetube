@@ -11,7 +11,7 @@ Video.find({}, (error, videos) => {
 // await이라는 것이 그 줄의 명령이 다 시행될 때까지 기다리라는 것이기 때문에 아직 다 데이터가 로딩되기도 전에 랜더링 되는 걸 막을 수 잇다.
 // error를 잡기 위해서는 try/catch를 사용한다.
 export const home = async(req,res) => {
-    const videos = await Video.find({})
+    const videos = await Video.find({}).sort({createdAt:"desc"})
     return res.render("home", {pageTitle: 'Home', videos});
 };
 
@@ -39,15 +39,15 @@ export const postEdit = async (req,res) => {
     const { id } = req.params;
     // edit.pug의 form에 name을 넣어줘야 한다. 그렇지 않으면 req.body는 empty를 가져옴.
     const { title, description, hashtags } = req.body;
-    const video = await Video.findById(id);
+    const video = await Video.exists({ _id : id });
     if(!video){
         return res.render("404", {pageTitle: "Video not found."});
     }
     await Video.findByIdAndUpdate(id, {
         title,
         description,
-        hashtags: hashtags.split(",").map((word) => (word.startsWith("#") ? word : `#${word}`)),
-    })
+        hashtags: Video.formatHashtages(hashtags),
+    });
     return res.redirect(`/videos/${id}`);
 };
 
@@ -64,11 +64,30 @@ export const postUplaod = async(req,res) => {
         await Video.create({
             title, // es6
             description,
-            hahstags: hashtags.split(",").map((word) => (word.startsWith("#") ? word : `#${word}`)),
+            hashtags: Video.formatHashtages(hashtags),
         });
         return res.redirect("/");
     } catch(error){
-        console.log(error);
         return res.render("upload", {pageTitle: "Upload Video", errorMessage: error._message,})
     }
+}
+
+export const deleteVideo = async(req, res) => {
+    const { id } = req.params; // params는 url에 이있는 것. 거기에 id가 있으니.
+    // delete video
+    await Video.findByIdAndDelete(id)
+    return res.redirect("/")
+}
+
+export const search = async(req, res) => {
+    const { keyword } = req.query;
+    let videos  = [];
+    if(keyword){
+        videos = await Video.find({
+            title: {
+                $regex: new RegExp(keyword, "i"), // "i" flag는 대소문자 구분 안하는 것.
+            },
+        })
+    }
+    return res.render("search", {pageTitle: "Search", videos})
 }
